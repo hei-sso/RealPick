@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Real Pick",
+  "version": "1.0.0",
+  "description": "광고성 리뷰를 걸러내고 신뢰할 수 있는 정보만 요약해주는 크롬 확장 프로그램",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://shopping.naver.com/*",
+    "*://smartstore.naver.com/*",
+    "*://brand.naver.com/*",
+    "http://localhost:3000/*" 
+  ],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://shopping.naver.com/products/*",
+        "*://smartstore.naver.com/*/products/*",
+        "*://brand.naver.com/*/products/*"
+      ],
+      "js": ["src/content/index.tsx"]
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html"
+  }
+}
