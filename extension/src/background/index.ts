@@ -1,5 +1,6 @@
-// 백엔드 API 주소 (배포 후에는 Railway 서버 URL로 변경해야 합니다)
-const API_BASE_URL = 'http://localhost:3000'; 
+// 백엔드 API 주소
+const API_BASE_URL = 'http://localhost:3000';
+// const API_BASE_URL ='http://realpick-production.up.railway.app';
 
 // Content Script에서 보내는 메시지 수신
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -11,7 +12,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         error: { message: error.message } 
       }));
     
-    // 비동기 응답(sendResponse를 나중에 호출)을 위해 반드시 true를 반환해야 합니다.
+    // 비동기 응답(sendResponse를 나중에 호출)을 위해 반드시 true를 반환
     return true; 
   }
 });
@@ -32,7 +33,7 @@ async function handleAnalyzeRequest(data: { url: string, reviews: any[] }) {
       },
       body: JSON.stringify({
         url: data.url,
-        // productName은 실제로는 scraper에서 파싱해서 넘겨주는 것이 좋습니다.
+        // productName은 실제로는 scraper에서 파싱해서 넘겨주는 것이 좋음
         productName: '네이버 쇼핑 상품',
         reviews: data.reviews,
       }),

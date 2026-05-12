@@ -11,70 +11,68 @@ interface ReviewSummaryProps {
 }
 
 export default function ReviewSummary({ data }: ReviewSummaryProps) {
-  // GPT API 호출 실패 시 Rule 기반 결과만 있고 요약이 없을 때의 처리
   if (data.aiUnavailable) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-center">
-        <span className="text-3xl mb-2">🤖🔌</span>
-        <p className="text-sm font-semibold text-gray-700">AI 요약을 일시적으로 제공할 수 없습니다.</p>
-        <p className="text-xs text-gray-500 mt-1">리뷰 신뢰도 점수 및 비율은 정상적으로 제공됩니다.</p>
+      <div style={{ padding: '30px 0', textAlign: 'center' }}>
+        <span style={{ fontSize: '30px', display: 'block', marginBottom: '10px' }}>🤖🔌</span>
+        <p style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>AI 요약을 제공할 수 없습니다.</p>
+        <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#6b7280' }}>신뢰도 점수는 정상 제공됩니다.</p>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-4 pr-1">
-      {/* 긍정 & 부정 요약 */}
-      <div className="space-y-2">
-        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
-          <div className="flex items-center space-x-1 mb-1">
-            <span>👍</span>
-            <span className="text-xs font-bold text-blue-800">긍정 요약</span>
-          </div>
-          <p className="text-xs text-gray-700 leading-relaxed">
-            {data.positiveSummary || '긍정적인 리뷰 내용이 부족합니다.'}
-          </p>
-        </div>
+  const boxStyle = (isPositive: boolean): React.CSSProperties => ({
+    backgroundColor: isPositive ? '#eff6ff' : '#fef2f2',
+    padding: '12px',
+    borderRadius: '8px',
+    border: `1px solid ${isPositive ? '#dbeafe' : '#fee2e2'}`,
+    marginBottom: '10px'
+  });
 
-        <div className="bg-red-50 p-3 rounded-lg border border-red-100">
-          <div className="flex items-center space-x-1 mb-1">
-            <span>👎</span>
-            <span className="text-xs font-bold text-red-800">부정 요약</span>
-          </div>
-          <p className="text-xs text-gray-700 leading-relaxed">
-            {data.negativeSummary || '부정적인 리뷰 내용이 부족합니다.'}
-          </p>
+  const tagStyle = (isPositive: boolean): React.CSSProperties => ({
+    backgroundColor: isPositive ? '#dbeafe' : '#fee2e2',
+    color: isPositive ? '#1e40af' : '#991b1b',
+    fontSize: '10px',
+    padding: '3px 8px',
+    borderRadius: '999px',
+    fontWeight: 'bold',
+    marginRight: '4px',
+    marginBottom: '4px'
+  });
+
+  return (
+    <div style={{ paddingRight: '4px' }}>
+      <div style={boxStyle(true)}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+          <span style={{ marginRight: '4px' }}>👍</span>
+          <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#1e40af' }}>긍정 요약</span>
         </div>
+        <p style={{ margin: 0, fontSize: '12px', color: '#374151', lineHeight: '1.5' }}>
+          {data.positiveSummary || '긍정 리뷰 부족'}
+        </p>
       </div>
 
-      {/* 장단점 키워드 */}
-      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+      <div style={boxStyle(false)}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+          <span style={{ marginRight: '4px' }}>👎</span>
+          <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#991b1b' }}>부정 요약</span>
+        </div>
+        <p style={{ margin: 0, fontSize: '12px', color: '#374151', lineHeight: '1.5' }}>
+          {data.negativeSummary || '부정 리뷰 부족'}
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '12px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
         <div>
-          <span className="text-xs font-bold text-gray-600 block mb-2">✅ 자주 언급된 장점</span>
-          <div className="flex flex-wrap gap-1">
-            {data.pros && data.pros.length > 0 ? (
-              data.pros.map((pro, idx) => (
-                <span key={idx} className="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded-full font-medium">
-                  {pro}
-                </span>
-              ))
-            ) : (
-              <span className="text-xs text-gray-400">데이터 없음</span>
-            )}
+          <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#4b5563', display: 'block', marginBottom: '8px' }}>✅ 장점</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            {data.pros?.map((pro, i) => <span key={i} style={tagStyle(true)}>{pro}</span>)}
           </div>
         </div>
         <div>
-          <span className="text-xs font-bold text-gray-600 block mb-2">❌ 자주 언급된 단점</span>
-          <div className="flex flex-wrap gap-1">
-            {data.cons && data.cons.length > 0 ? (
-              data.cons.map((con, idx) => (
-                <span key={idx} className="bg-red-100 text-red-700 text-[10px] px-2 py-1 rounded-full font-medium">
-                  {con}
-                </span>
-              ))
-            ) : (
-              <span className="text-xs text-gray-400">데이터 없음</span>
-            )}
+          <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#4b5563', display: 'block', marginBottom: '8px' }}>❌ 단점</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            {data.cons?.map((con, i) => <span key={i} style={tagStyle(false)}>{con}</span>)}
           </div>
         </div>
       </div>

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-interface UsageData {
-  count: number;
-  resetMonth?: string;
-}
+interface UsageData { count: number; }
 
 export default function Popup() {
   const [usage, setUsage] = useState({ count: 0, remaining: 5 });
@@ -12,47 +9,72 @@ export default function Popup() {
   useEffect(() => {
     chrome.storage.local.get(['usage'], (result) => {
       const data = result.usage as UsageData | undefined;
-
       if (data && typeof data.count === 'number') {
-        const remaining = Math.max(0, 5 - data.count);
-        setUsage({ count: data.count, remaining });
+        setUsage({ count: data.count, remaining: Math.max(0, 5 - data.count) });
       }
     });
   }, []);
 
+  // 인라인 스타일
+  const popupStyle: React.CSSProperties = {
+    width: '320px',
+    backgroundColor: '#ffffff',
+    borderRadius: '16px',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+    padding: '20px',
+    boxSizing: 'border-box',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  };
+
+  const headerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '20px',
+    borderBottom: '1px solid #f3f4f6',
+    paddingBottom: '12px'
+  };
+
+  const usageBoxStyle: React.CSSProperties = {
+    backgroundColor: '#f3f9ff',
+    border: '1px solid #e0f2fe',
+    borderRadius: '12px',
+    padding: '20px',
+    textAlign: 'center',
+    marginBottom: '20px'
+  };
+
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+    <div style={popupStyle}>
+      {/* 헤더 */}
+      <div style={headerStyle}>
         <span style={{ fontSize: '20px', marginRight: '8px' }}>🔍</span>
-        <h2 style={{ margin: 0, fontSize: '18px', color: '#1f2937' }}>Real Pick</h2>
+        <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#111827' }}>
+          Real Pick
+        </h2>
       </div>
       
-      <div style={{ backgroundColor: '#f3f4f6', padding: '15px', borderRadius: '8px' }}>
-        <p style={{ margin: 0, fontSize: '13px', color: '#4b5563', fontWeight: 'bold' }}>
+      {/* 콘텐츠 영역 */}
+      <div style={usageBoxStyle}>
+        <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', fontWeight: 'bold' }}>
           이번 달 남은 분석 횟수
         </p>
-        <p style={{ margin: '8px 0 0 0', fontSize: '24px', fontWeight: '900', color: '#3b82f6' }}>
-          {usage.remaining} / 5회
+        <p style={{ margin: '12px 0 0 0', fontSize: '28px', fontWeight: '900', color: '#3b82f6' }}>
+          {usage.remaining} <span style={{ fontSize: '16px', color: '#9ca3af', fontWeight: 'normal' }}>/ 5회</span>
         </p>
       </div>
 
-      <div style={{ marginTop: '15px', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontSize: '12px', color: '#9ca3af' }}>
-          네이버 쇼핑 상품 페이지에 접속하면<br/>자동으로 분석이 시작됩니다.
+      <div style={{ textAlign: 'center' }}>
+        <p style={{ margin: 0, fontSize: '12px', color: '#9ca3af', lineHeight: '1.6' }}>
+          네이버 쇼핑 상품 페이지에 접속하면<br/>
+          <span style={{ color: '#3b82f6', fontWeight: '600' }}>자동으로 분석</span>이 시작됩니다.
         </p>
       </div>
     </div>
   );
 }
 
-// HTML의 root 요소에 React 컴포넌트 렌더링
 const container = document.getElementById('root');
-
-if (container) {
-  // 전역(window) 객체에 루트를 저장하여 HMR 시 재사용합니다.
-  if (!(window as any)._reactRoot) {
-    (window as any)._reactRoot = createRoot(container);
-  }
-  
+if (container && !(window as any)._reactRoot) {
+  (window as any)._reactRoot = createRoot(container);
   (window as any)._reactRoot.render(<Popup />);
 }

@@ -1,25 +1,54 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App'; // AnalysisCard, LoadingCard 등을 관리하는 최상위 컨테이너
+import App from './App';
 import '../index.css';
 
-function injectRealPickUI() {
-  // 네이버 쇼핑 상품 페이지인지 한 번 더 확인 (Manifest에서 걸렀지만 방어 코드)
-  if (!window.location.href.includes('shopping.naver.com/products')) return;
+async function injectRealPickUI() {
+  if (document.getElementById('real-pick-extension-root')) return;
 
-  // 컨테이너 생성 및 스타일 지정 (우측 고정 오버레이)
+  // 1. 최상위 컨테이너 생성 및 기본 위치 고정
   const container = document.createElement('div');
   container.id = 'real-pick-extension-root';
-  container.style.position = 'fixed';
-  container.style.top = '20px';
-  container.style.right = '20px';
-  container.style.zIndex = '999999'; // 네이버 쇼핑 헤더보다 높게 설정
-  
+  // 네이버 UI와 겹치지 않도록 스타일 지정
+  Object.assign(container.style, {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: '2147483647', // 최상단 배치
+    width: '320px',       // 너비 고정
+    minHeight: '100px'
+  });
   document.body.appendChild(container);
 
-  const root = createRoot(container);
+  // 2. Shadow DOM 생성
+  const shadowRoot = container.attachShadow({ mode: 'open' });
+  const innerRoot = document.createElement('div');
+  innerRoot.id = 'real-pick-inner-root';
+  shadowRoot.appendChild(innerRoot);
+
+  // 3. 스타일 주입
+  // Vite의 ?inline 쿼리를 사용하여 CSS를 문자열로 직접 가져옴
+  try {
+    const cssModule = await import('../index.css?inline');
+    const styleTag = document.createElement('style');
+    styleTag.textContent = cssModule.default;
+    shadowRoot.appendChild(styleTag);
+  } catch (e) {
+    console.error("CSS 주입 실패:", e);
+  }
+
+  const root = createRoot(innerRoot);
   root.render(<App />);
 }
 
-// 스크립트 로드 시 즉시 주입
+// 네이버 쇼핑은 페이지 이동이 잦으므로 주소 변경 감지 로직 추가
+let lastUrl = location.href;
+new MutationObserver(() => {
+  const url = location.href;
+  if (url !== lastUrl) {
+    lastUrl = url;
+    setTimeout(injectRealPickUI, 1000); // 페이지 로딩 대기 후 주입
+  }
+}).observe(document, { subtree: true, childList: true });
+
 injectRealPickUI();

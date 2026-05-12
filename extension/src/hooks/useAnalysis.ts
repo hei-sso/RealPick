@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { scrapeReviews, validateReviews } from '../content/scraper';
+import { scrapeReviews, validateReviews, getProductRating } from '../content/scraper'; 
 
 type AnalysisState = 'IDLE' | 'LOADING' | 'COMPLETE' | 'ERROR_STATE';
 
@@ -18,6 +18,7 @@ export function useAnalysis() {
     try {
       // 1. 리뷰 데이터 수집 (최대 100개)
       const reviews = scrapeReviews();
+      const originalRating = getProductRating(); 
       
       if (!validateReviews(reviews)) {
         throw new Error('NO_REVIEWS');
@@ -25,7 +26,7 @@ export function useAnalysis() {
 
       // 2. Background Worker로 메시지 전송 (백엔드 API 호출 위임)
       chrome.runtime.sendMessage(
-        { type: 'ANALYZE', data: { url: window.location.href, reviews } },
+        { type: 'ANALYZE', data: { url: window.location.href, reviews, originalRating } },
         (response: any) => {
           if (response && response.success) {
             setResult(response.data);

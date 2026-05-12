@@ -1,3 +1,20 @@
+// 임시 MVP 버전
+export async function getCachedAnalysis(url: string): Promise<any | null> {
+  // DB가 없으므로 항상 '캐시 없음(null)'을 반환하여 실시간 AI 분석을 강제함
+  return null;
+}
+
+export async function saveAnalysisResult(
+  url: string, 
+  productName: string, 
+  originalRating: number, 
+  resultData: any
+): Promise<void> {
+  // DB가 없으므로 저장은 건너뛰고 콘솔에 로그 찍기
+  console.log(`[임시 모드] DB가 없어 저장을 건너뜁니다: ${productName}`);
+}
+
+/*
 import pool from './connection';
 import crypto from 'crypto';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
@@ -114,3 +131,4 @@ export async function saveAnalysisResult(
     connection.release();
   }
 }
+*/
